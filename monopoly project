@@ -1,0 +1,185 @@
+R <- matrix(0, nrow = 40, ncol = 40)
+for (i in 1:40) {
+R[i, (i+2)%%40] <- 1/36
+R[i, (i+3)%%40] <- 1/18
+R[i, (i+4)%%40] <-1/12
+R[i, (i+5)%%40] <- 1/9
+R[i, (i+6)%%40] <-5/36
+R[i, (i+7)%%40] <-1/6
+R[i, (i+8)%%40] <- 5/36
+R[i, (i+9)%%40] <- 1/9
+R[i, (i+10)%%40] <-1/12
+R[i, (i+11)%%40] <- 1/18
+R[i, (i+12)%%40] <-1/36
+if((i+2)%%40 == 0) {
+  R[i, 40] <- 1/36
+}
+if((i+3)%%40 == 0) {
+  R[i, 40] <- 1/18
+}
+if((i+4)%%40 == 0) {
+  R[i, 40] <- 1/12
+}
+if((i+5)%%40 == 0) {
+  R[i, 40] <- 1/9
+}
+if((i+6)%%40 == 0) {
+  R[i, 40] <- 5/36
+}
+if((i+7)%%40 == 0) {
+  R[i, 40] <- 1/6
+}
+if((i+8)%%40 == 0) {
+  R[i, 40] <- 5/36
+}
+if((i+9)%%40 == 0) {
+  R[i, 40] <- 1/9
+}
+if((i+10)%%40 == 0) {
+  R[i, 40] <- 1/12
+}
+if((i+11)%%40 == 0) {
+  R[i, 40] <- 1/18
+}
+if((i+12)%%40 == 0) {
+  R[i, 40] <- 1/36
+}
+}
+
+library(MASS)
+as.fractions(R)
+
+
+View(R)
+rowSums(R)
+
+
+
+S <- diag(1, 40, 40)
+
+for (i in 1:40) {
+#land on go to jail space, go to jail
+S[31, 11] <- 1
+S[31,31] <- 0 
+}
+S
+
+
+#(ii) community chest 
+for (i in 1:40) {
+#advance to go 
+S[3, 1] <- 1/17
+#land on community chest, stay on community chest
+S[3,3] <- 15/17
+#advance to go 
+S[18, 1] <- 1/17
+#land on community chest, stay on community chest
+S[18, 18] <- 15/17
+#advance to go 
+S[34, 1] <- 1/17
+#land on community chest, stay on community chest
+S[34, 34] <- 15/17
+#go to jail
+S[3,11] <- 1/17
+#go to jail 
+S[18,11] <- 1/17
+#go to jail
+S[34,11] <- 1/17
+}
+S
+
+
+#(iii) chance cards
+
+for (i in 1:40) {
+#advance to go 
+S[8, 1] <- 1/16
+#land on chance space, stay on chance space
+S[8, 8] <- 7/16
+#advance to go 
+S[23, 1] <- 1/16
+#land on chance space, stay on chance space
+S[23, 23] <- 7/16
+#advance to go 
+S[37, 1] <- 1/16
+#land on chance space, stay on chance space
+S[37, 37] <- 7/16
+#advance to illinois ave
+S[8, 25] <- 1/16
+#advance to illinois ave
+S[23, 25] <- 1/16
+#advance to illinois ave
+S[37, 25] <- 1/16
+#advance to charles place
+S[8, 12] <- 1/16
+#advance to charles place
+S[23, 12] <- 1/16
+#advance to charles place
+S[37, 12] <- 1/16
+#advance to electric utility 
+S[8, 13] <- 1/16
+#advance to water utility 
+S[23, 29] <- 1/16
+#advance to electric utility 
+S[37, 13] <- 1/16
+#advance to pennsylvania railroad 
+S[8, 16] <- 1/16
+#advance to B&D railroad
+S[23, 26] <- 1/16
+#advance to reading railroad 
+S[37, 6] <- 1/8
+#go back three spaces
+S[8, 5] <- 1/16
+#go back three spaces
+S[23, 20] <- 1/16
+#go back three spaces
+S[37, 34] <- 1/16
+#go to jail
+S[8, 11] <- 1/16
+#go to jail
+S[23, 11] <- 1/16
+#go to jail
+S[37, 11] <- 1/16
+#go to reading railroad
+S[8, 6] <- 1/16
+#go to reading railroad
+S[23, 6] <- 1/16
+#advance to boardwalk
+S[8, 40] <- 1/16
+#advance to boardwalk 
+S[23, 40] <- 1/16
+#advance to boardwalk
+S[37, 40] <- 1/16
+
+}
+
+View(S)
+
+as.fractions(S)
+
+
+P <- R%*%S
+rowSums(P)
+round(P, 3)
+
+library(matlib)
+## Warning: package 'matlib' was built under R version 3.5.2
+A <- matrix(0, nrow = 41, ncol = 40)
+
+A[c(1:40), ] <- t(P)
+
+A[41, ] <- rep(1, 40)
+A[c(1:40),] <- A[c(1:40), ] - diag(1, nrow = 40)
+
+v2 <- c(rep(0,40), 1)
+v2
+
+
+lrprop <- gaussianElimination(A, v2)
+
+rent <- c(0, 2, 0, 4, 0, 25, 6, 0, 6, 8, 0, 10, 28, 10, 12, 25, 14, 0, 14, 16, 0, 18, 0, 18, 20, 25, 22, 22, 28, 24, 0, 26, 26, 0, 28, 25, 0, 35, 0, 50)
+
+revenue <- rent * lrprop[1:40, 41]
+revenue
+names <- c("Go Space", "Mediterranean Avenue", "Community Chest", "Baltic Avenue", "Income Tax", "Reading Railroad", "Oriental Avenue", "Chance", "Vermont Avenue", "Conneticut Avenue", "Jail", "St Charles Places", "Electric Avenue", "States Avenue", "Virginia Avenue", "Pennsylvania Railroad", "St James Place", "Community Chest", "Tennesee Avenue", "New York Avenue", "Free Parking", "Kentucky Avenue", "Chance", "Indiana Avenue", "Illinois Avenue", "B & O Railroad", "Atlantic Avenue", "Ventnor Avenue", "Water Works", "Marvin Gardens", "Go to Jail", "Pacific Avenue", "North Carolina Avenue", "Community Chest", "Pennsylvania Avenue", "Short Line", "Chance", "Park Place", "Luxury Tax", "Boardwalk" )
+data.frame("Properties" = names, "Proportion of Time Spent on Space" = lrprop[1:40, 41], "Rent" = rent, "Expected Revenue" = revenue)
